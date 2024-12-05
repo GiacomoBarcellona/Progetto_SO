@@ -8,6 +8,20 @@ int first_level_bit(int level)
     return (1<<level) - 1;
 }
 
+int buddyIdx(int idx)
+{
+    if (idx&0x1)
+    {
+        return idx-1;
+    }
+    return idx+1;
+}
+
+int parentIdx(int idx)
+{
+    return idx/2;
+}
+
 // costruttore allocator
 void buddyAllocator_init(buddyAllocator* alloc, bitmap bit_map, uint8_t buffer, int num_levels, int min_bucket_size, char* memory)
 {
@@ -25,7 +39,7 @@ void buddyAllocator_init(buddyAllocator* alloc, bitmap bit_map, uint8_t buffer, 
 void* buddyAllocator_malloc(buddyAllocator* alloc, int size)
 {
     int total_mem = (1<<alloc->num_levels)*(alloc->min_bucket_size); // blocchi ultimo livello * dim blocco minimo
-    int level = floor(log2(total_mem/size+8)); // calcolo il livello più piccolo che può soddisfare la richiesta
+    int level = floor(log2(total_mem/size+4)); // livello più piccolo per contenere size + overhead per un int
 
     if (level>=(alloc->num_levels)) level = alloc->num_levels - 1; // approssimo al blocco più piccolo che ho
 
@@ -90,7 +104,42 @@ void* memoryAddress(buddyAllocator* alloc, int free_node, int level)
     // offset dall'inizio della memoria = offset dall'inizio del livello
     int idx_in_lvl = free_node - first_level_bit(level);
     size_t lvl_offset = block_size * idx_in_lvl;
-    size_t free_address = mem_start + lvl_offset;
+    size_t mem_offset = mem_start + lvl_offset;
+    
+    // salvo nei 4 byte iniziali l'indice del nodo per poterlo recuperare
+    int* free_address = (int*)mem_offset; 
+    *free_address = free_node;
+    return (void*)(free_address+1);
+}
 
-    return free_address;
+
+void releaseBuddy(buddyAllocator* alloc, int node_idx)
+{
+    int node_buddy = buddyIdx(node_idx);
+    
+    // controllo se posso fare il merge
+    if (bitmap_getBit(&alloc->bit_map, node_buddy)==0)
+    {
+        bitmap_setBit(&alloc->bit_map, node_buddy, 1); // figli non disponibili
+        int parent_idx = parentIdx(node_idx);
+        bitmap_setBit(&alloc->bit_map, parent_idx, 0);
+
+        if(parent_idx!=1) 
+        {
+            // chiamo ricorsivamente se il padre non è radice 
+            releaseBuddy(alloc, parent_idx);
+        }
+    }
+    else
+    {
+        bitmap_setBit(&alloc->bit_map, node_idx, 0);
+    }
+}
+
+void* buddyAllocator_free(buddyAllocator* alloc, void* mem)
+{
+    int* allocated_block = (int*)mem;
+    int node_idx = *(allocated_block-1); // torno indietro e recupero la posizione
+
+    releaseBuddy(alloc, node_idx);
 }

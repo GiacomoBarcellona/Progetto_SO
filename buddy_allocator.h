@@ -24,3 +24,7 @@ int free_node_idx(buddyAllocator* alloc, int level);
 int splitParent(buddyAllocator* alloc, int parent_idx);
 
 void* memoryAddress(buddyAllocator* alloc, int free_node, int level);
+
+void releaseBuddy(buddyAllocator* alloc, int node_idx);
+
+void* buddyAllocator_free(buddyAllocator* alloc, void* mem);
