@@ -9,7 +9,7 @@ typedef struct
 
 } bitmap;
 
-void bitmap_init(bitmap* bit_map, int bits, uint8_t* buffer);
+void bitmap_init(bitmap* bit_map, int bits, char* buffer);
 
 int bitmap_getBytes(int bits);
 

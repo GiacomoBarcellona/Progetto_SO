@@ -1,17 +1,19 @@
 #include <assert.h>
 #include "bitmap.h"
-
+#include <stdio.h>
 
 
 // calcola i bytes necessari per contenere i bit(nodi albero) nel buffer 
 int bitmap_getBytes(int bits)
 {
-    return bits/8 + (bits%8)!=0;
+    int bytes = bits/8;
+    if (bits%8 != 0) bytes++;
+    return bytes;
 }
 
 
 // costruttore bitmap
-void bitmap_init(bitmap* bit_map, int bits, uint8_t* buffer)
+void bitmap_init(bitmap* bit_map, int bits, char* buffer)
 {
     bit_map->buffer = buffer; 
     bit_map->num_bits = bits;
@@ -28,7 +30,7 @@ void bitmap_init(bitmap* bit_map, int bits, uint8_t* buffer)
 int bitmap_getBit(const bitmap* bit_map, int bit_num)
 {
     int byte_index = bit_num>>3; // eq bit_num/8
-    assert(byte_index<bit_map->buffer_size);
+    assert(byte_index<(bit_map->buffer_size));
     int bit_index = bit_num&0x07; // eq bit_num%8, idx nel byte
 
     return (bit_map->buffer[byte_index] & (1<<bit_index))!=0;

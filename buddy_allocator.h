@@ -13,7 +13,7 @@ typedef struct
 } buddyAllocator;
 
 
-void buddyAllocator_init(buddyAllocator* alloc, bitmap bit_map, uint8_t buffer, int num_levels, int min_bucket_size, char* memory);
+void buddyAllocator_init(buddyAllocator* alloc, bitmap* bit_map, char* buffer, int num_levels, int min_bucket_size, char* memory);
 
 int first_level_bit(int level);
 
