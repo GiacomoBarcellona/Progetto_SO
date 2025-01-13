@@ -21,7 +21,7 @@ void* buddyAllocator_malloc(buddyAllocator* alloc, int size);
 
 int free_node_idx(buddyAllocator* alloc, int level);
 
-int splitParent(buddyAllocator* alloc, int parent_idx);
+void update_bitmap(bitmap* bit_map, int idx, int status);
 
 void* memoryAddress(buddyAllocator* alloc, int free_node, int level);
 

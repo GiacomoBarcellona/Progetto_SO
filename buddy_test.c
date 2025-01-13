@@ -16,8 +16,10 @@ int main(int argc, char** argv)
     //inizializzo il buddy allocator, che a sua volta inizializza bitmap
     buddyAllocator_init(&allocator, &bmap, buffer, BUDDY_LEVELS, MIN_BUCKET_SIZE, memory);
 
-    void* request1 = buddyAllocator_malloc(&allocator, 250000);
-    void* request2 = buddyAllocator_malloc(&allocator, 250000);
-    buddyAllocator_free(&allocator, &request1);
-    buddyAllocator_free(&allocator, &request2);
+    void* request1 = buddyAllocator_malloc(&allocator, 500000);
+    void* request2 = buddyAllocator_malloc(&allocator, 500000);
+    void* request3 = buddyAllocator_malloc(&allocator, 500000);
+    buddyAllocator_free(&allocator, request1);
+    buddyAllocator_free(&allocator, request2);
+    buddyAllocator_free(&allocator, request3);
 }
