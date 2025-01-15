@@ -1,5 +1,6 @@
 #pragma once
 #include "bitmap.h"
+#define MEMORY_SIZE 1024*1024
 
 
 
@@ -22,6 +23,8 @@ void* buddyAllocator_malloc(buddyAllocator* alloc, int size);
 int free_node_idx(buddyAllocator* alloc, int level);
 
 void update_bitmap(bitmap* bit_map, int idx, int status);
+
+void update_parent(bitmap* bit_map, int idx);
 
 void* memoryAddress(buddyAllocator* alloc, int free_node, int level);
 

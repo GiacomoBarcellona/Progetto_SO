@@ -2,6 +2,14 @@
 #include <stdio.h>
 #include <math.h>
 
+void print_bitmap(bitmap* bit_map) {
+    for (int i = 0; i < bit_map->num_bits; ++i) 
+    {
+        printf("%d", bitmap_getBit(bit_map, i));
+    }
+    printf("\n");
+}
+
 // indice assoluto nella bitmap del primo nodo di un livello
 int first_level_bit(int level)
 {
@@ -58,6 +66,11 @@ void* buddyAllocator_malloc(buddyAllocator* alloc, int size)
     
     // cerco livello più piccolo per contenere size + overhead per un int
     int level = floor(log2(total_mem/(size + 4))); 
+    if(level<0)
+    {
+        printf("Blocco troppo grande, richiesta non esaudibile.\n"); // non dovrebbe succedere a progetto terminato
+        return NULL;
+    }
 
     printf("livello calcolato: %d\n", level);
 
@@ -94,15 +107,15 @@ int free_node_idx(buddyAllocator* alloc, int level)
             
             // aggiorno coerentemente la bitmap dai nodi figli
             update_bitmap(&alloc->bit_map, idx, 1);
-
+            print_bitmap(&alloc->bit_map);
+            // segno il padre come occupato perchè una sua metà è stata occupata
+            update_parent(&alloc->bit_map, idx);
+            print_bitmap(&alloc->bit_map);
             return idx;
         } 
     }
 
-
-
     return -1;
-
 }
 
 // segna le partizioni di memoria del blocco scelto come occupate(libere) 
@@ -115,6 +128,14 @@ void update_bitmap(bitmap* bit_map, int idx, int status)
         update_bitmap(bit_map, leftChildIdx(idx), status);
         update_bitmap(bit_map, rightChildIdx(idx), status);
     }
+}
+
+void update_parent(bitmap* bit_map, int idx)
+{   
+    int parent = parentIdx(idx);
+    if(parent<0 || (bitmap_getBit(bit_map, parent)==1)) return;
+    bitmap_setBit(bit_map, parent, 1);
+    return update_parent(bit_map, parent);
 }
 
 
@@ -139,13 +160,13 @@ void* memoryAddress(buddyAllocator* alloc, int free_node, int level)
 void releaseBuddy(buddyAllocator* alloc, int node_idx)
 {
     update_bitmap(&alloc->bit_map, node_idx, 0);
-
+    
     printf("rilasciando nodo a indice %d\n", node_idx);
-
+    print_bitmap(&alloc->bit_map);
     int node_buddy = buddyIdx(node_idx);
     
     // controllo se posso fare il merge
-    if (bitmap_getBit(&alloc->bit_map, node_buddy)==0)
+    if (bitmap_getBit(&alloc->bit_map, node_buddy)==0 && node_idx!=0)
     {
         int parent_idx = parentIdx(node_idx);
 
@@ -161,20 +182,28 @@ void releaseBuddy(buddyAllocator* alloc, int node_idx)
         {
             printf("sono risalito fino alla radice, la libero\n");
             bitmap_setBit(&alloc->bit_map, parent_idx, 0);
+            print_bitmap(&alloc->bit_map);
         }
     }
 }
 
 void* buddyAllocator_free(buddyAllocator* alloc, void* mem)
 {
-    if(mem==NULL)
+    if(mem==NULL || (char*)mem < alloc->memory || (char*)mem >= (alloc->memory + MEMORY_SIZE))
     {
         printf("Zona di memoria da deallocare non valida.\n");
         return NULL;
     }
+
     int* allocated_block = (int*)mem;
     int node_idx = *(allocated_block-1); // torno indietro e recupero la posizione
 
     printf("libero blocco a indice %d\n", node_idx);
+
+    if(bitmap_getBit(&alloc->bit_map, node_idx)==0)
+    {
+        printf("Zona di memoria corrispondente già libera.\n");
+        return NULL;
+    }
     releaseBuddy(alloc, node_idx);
 }
