@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
+/*
 void print_bitmap(bitmap* bit_map) {
     for (int i = 0; i < bit_map->num_bits; ++i) 
     {
@@ -9,6 +10,7 @@ void print_bitmap(bitmap* bit_map) {
     }
     printf("\n");
 }
+*/
 
 // indice assoluto nella bitmap del primo nodo di un livello
 int first_level_bit(int level)
