@@ -109,10 +109,10 @@ int free_node_idx(buddyAllocator* alloc, int level)
             
             // aggiorno coerentemente la bitmap dai nodi figli
             update_bitmap(&alloc->bit_map, idx, 1);
-            print_bitmap(&alloc->bit_map);
+            //print_bitmap(&alloc->bit_map);
             // segno il padre come occupato perchè una sua metà è stata occupata
             update_parent(&alloc->bit_map, idx);
-            print_bitmap(&alloc->bit_map);
+            //print_bitmap(&alloc->bit_map);
             return idx;
         } 
     }
@@ -164,7 +164,7 @@ void releaseBuddy(buddyAllocator* alloc, int node_idx)
     update_bitmap(&alloc->bit_map, node_idx, 0);
     
     printf("rilasciando nodo a indice %d\n", node_idx);
-    print_bitmap(&alloc->bit_map);
+    //print_bitmap(&alloc->bit_map);
     int node_buddy = buddyIdx(node_idx);
     
     // controllo se posso fare il merge
@@ -184,7 +184,7 @@ void releaseBuddy(buddyAllocator* alloc, int node_idx)
         {
             printf("sono risalito fino alla radice, la libero\n");
             bitmap_setBit(&alloc->bit_map, parent_idx, 0);
-            print_bitmap(&alloc->bit_map);
+            //print_bitmap(&alloc->bit_map);
         }
     }
 }

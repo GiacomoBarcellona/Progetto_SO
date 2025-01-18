@@ -5,18 +5,27 @@
 #include <stdio.h>
 
 
+static char buffer[BUFFER_SIZE];
+static char memory[MEMORY_SIZE];
+static bitmap bmap;
+static buddyAllocator alloc;
+// dichiarato globalmente per non costringere 
+// l'utente a inserirlo come parametro ogni volta
 
-void malloc_init(buddyAllocator* alloc, bitmap* bit_map, char* buffer, int num_levels, int min_bucket_size, char* memory)
+
+void pseudoMalloc_init(int num_levels)
 {
-    buddyAllocator_init(&alloc, &bit_map, buffer, num_levels, min_bucket_size, memory);
+    char buffer[BUFFER_SIZE];
+    char memory[MEMORY_SIZE];
+    buddyAllocator_init(&alloc, &bmap, buffer, num_levels, MIN_BUCKET_SIZE, memory);
 }
 
 
-void* pseudo_malloc(buddyAllocator* alloc, int size)
-{
-    if(size < PAGE_SIZE/4)
+void* pseudo_malloc(int size)
+{   
+    if((size+4) < PAGE_SIZE/4) // overhead necessario se uso buddy 
     {
-        void* p = buddyAllocator_malloc(&alloc, size);
+        void* p = buddyAllocator_malloc(&alloc, size+4); 
         if(p==NULL)
         {
             printf("fallimento allocazione con buddyAllocator");
@@ -25,7 +34,8 @@ void* pseudo_malloc(buddyAllocator* alloc, int size)
     }
     else
     {
-        void* p = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, -1, 0);
+        // per usarla come malloc:
+        void* p = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0); 
         if(p==MAP_FAILED)
         {
             printf("fallimento allocazione con mmap");
@@ -36,5 +46,13 @@ void* pseudo_malloc(buddyAllocator* alloc, int size)
 
 void pseudo_free(void* p, int size)
 {
-    
+    if((size+4) < PAGE_SIZE/4)
+    {
+        buddyAllocator_free(&alloc, p);
+    }
+    else
+    {
+        int mnp = munmap(p, size);
+        if(mnp==-1) printf("fallimento deallocazione con munmap");
+    }
 }
