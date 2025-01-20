@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 
     printf("Allocazione gestibile dal buddy\n"); 
     void* request1 = pseudo_malloc(250); 
-    if(request1!=NULL){printf("Riuscita");}
+    if(request1!=NULL){printf("Riuscita\n");}
 
     memset(request1, 1, 250); 
     printf("Valore scritto in prima pos: %c\n", ((char*)request1)[0]); 
@@ -20,19 +20,17 @@ int main(int argc, char** argv)
 
     printf("Allocazione da fare con mmap\n");
     void* request2 = pseudo_malloc(2500); 
-    if(request2!=NULL){printf("Riuscita");}
+    if(request2!=NULL){printf("Riuscita\n");}
 
     memset(request2, 2, 2500); 
     pseudo_free(request2, 2500); 
     
     void* req3 = pseudo_malloc(500); 
     void* req4 = pseudo_malloc(500); 
-    void* req6 = pseudo_malloc(2000);
-    void* req7 = NULL;
+    void* req5 = pseudo_malloc(500);
     pseudo_free(req3, 500); 
-    //pseudo_free(req4, 500); 
-    //pseudo_free(req6, 2000); 
-    //pseudo_free(req7, 2000);
-
+    pseudo_free(req4, 500); 
+    pseudo_free(req5, 500); 
+    
     return 0; 
 }  

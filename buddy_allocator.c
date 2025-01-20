@@ -143,7 +143,10 @@ void update_parent(bitmap* bit_map, int idx)
 
 void* memoryAddress(buddyAllocator* alloc, int free_node, int level)
 {
-    size_t block_size = (alloc->min_bucket_size)<<level; // dimensione dei blocchi al livello dato
+    printf("level: %d\n", level);
+    size_t block_size = MEMORY_SIZE>>level; // dimensione dei blocchi al livello dato
+    printf("block_size: %ld\n", block_size);
+    
     size_t mem_start = (size_t)alloc->memory;
 
     // offset dall'inizio della memoria = offset dall'inizio del livello
