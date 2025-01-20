@@ -11,6 +11,7 @@ char memory[MEMORY_SIZE];
 buddyAllocator allocator;
 bitmap bmap;
 
+/*
 int main(int argc, char** argv)
 {
     //inizializzo il buddy allocator, che a sua volta inizializza bitmap 
@@ -33,3 +34,4 @@ int main(int argc, char** argv)
     void* request6 = buddyAllocator_malloc(&allocator, 10);
     buddyAllocator_free(&allocator, request6);
 }
+*/
