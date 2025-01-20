@@ -31,6 +31,10 @@ int main(int argc, char** argv)
     pseudo_free(req3, 500); 
     pseudo_free(req4, 500); 
     pseudo_free(req5, 500); 
+    pseudo_free(req5, 500);
+
+    void* req6 = NULL;
+    pseudo_free(req6, 1000); 
     
     return 0; 
 }  

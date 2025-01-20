@@ -46,6 +46,18 @@ void* pseudo_malloc(int size)
 
 void pseudo_free(void* p, int size)
 {
+    if(p==NULL)
+    {
+        printf("Errore free: puntatore non valido.\n");
+        return;
+    }
+    if(size<=0)
+    {
+        printf("Errore free: dimensione non valida.\n");
+        return;
+    }
+
+
     if((size+4) < PAGE_SIZE/4)
     {
         buddyAllocator_free(&alloc, p);
