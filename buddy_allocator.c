@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
-
+/*
 void print_bitmap(bitmap* bit_map) {
     for (int i = 0; i < bit_map->num_bits; ++i) 
     {
@@ -10,7 +10,7 @@ void print_bitmap(bitmap* bit_map) {
     }
     printf("\n");
 }
-
+*/
 
 // indice assoluto nella bitmap del primo nodo di un livello
 int first_level_bit(int level)
@@ -74,11 +74,9 @@ void* buddyAllocator_malloc(buddyAllocator* alloc, int size)
         return NULL;
     }
 
-    printf("livello calcolato: %d\n", level);
-
     if (level>=(alloc->num_levels)) level = alloc->num_levels - 1; // approssimo al blocco più piccolo che ho
 
-    printf("richiesti %d bytes, da allocare al livello %d\n", size, level);
+    printf("Richiesti %d bytes, da allocare al livello %d\n", size, level);
 
     int free_node = free_node_idx(alloc, level);
     if(free_node == -1) 
@@ -96,23 +94,25 @@ int free_node_idx(buddyAllocator* alloc, int level)
 {
     int first_lvl_bit = first_level_bit(level);
     int last_lvl_bit = first_lvl_bit + (1<<(level)) - 1;
-    printf("il primo bit del livello %d è %d\n", level, first_lvl_bit);
-    printf("l'ultimo bit del livello %d è %d\n", level, last_lvl_bit);
+    printf("Il primo bit del livello %d è %d\n", level, first_lvl_bit);
+    printf("L'ultimo bit del livello %d è %d\n", level, last_lvl_bit);
 
     // ciclo sul livello della dimensione giusta
     for(int idx = first_lvl_bit; idx <= last_lvl_bit; ++idx)
     {
-        printf("controllo il bit: %d\n", idx);
+        printf("Controllo il bit: %d\n", idx);
         if(bitmap_getBit(&alloc->bit_map, idx) == 0)
         {
-            printf("trovato nodo libero a index %d, setto a 1\n", idx);
-            
+            printf("Trovato nodo libero a index %d, setto a 1\n", idx);
+            //print_bitmap(&alloc->bit_map);
+
             // aggiorno coerentemente la bitmap dai nodi figli
             update_bitmap(&alloc->bit_map, idx, 1);
-            print_bitmap(&alloc->bit_map);
+
             // segno il padre come occupato perchè una sua metà è stata occupata
             update_parent(&alloc->bit_map, idx);
-            print_bitmap(&alloc->bit_map);
+
+            //print_bitmap(&alloc->bit_map);
             return idx;
         } 
     }
@@ -143,10 +143,7 @@ void update_parent(bitmap* bit_map, int idx)
 
 void* memoryAddress(buddyAllocator* alloc, int free_node, int level)
 {
-    printf("level: %d\n", level);
     size_t block_size = MEMORY_SIZE>>level; // dimensione dei blocchi al livello dato
-    printf("block_size: %ld\n", block_size);
-    
     size_t mem_start = (size_t)alloc->memory;
 
     // offset dall'inizio della memoria = offset dall'inizio del livello
@@ -166,8 +163,9 @@ void releaseBuddy(buddyAllocator* alloc, int node_idx)
 {
     update_bitmap(&alloc->bit_map, node_idx, 0);
     
-    printf("rilasciando nodo a indice %d\n", node_idx);
-    print_bitmap(&alloc->bit_map);
+    printf("Rilasciando nodo a indice %d\n", node_idx);
+    // print_bitmap(&alloc->bit_map);
+
     int node_buddy = buddyIdx(node_idx);
     
     // controllo se posso fare il merge
@@ -175,8 +173,7 @@ void releaseBuddy(buddyAllocator* alloc, int node_idx)
     {
         int parent_idx = parentIdx(node_idx);
 
-        printf("merging con buddy con indice %d\n", node_buddy);
-        printf("il loro padre è: %d\n", parent_idx);
+        printf("Merging con buddy con indice %d\n", node_buddy);
 
         if(parent_idx!=0) 
         {
@@ -185,9 +182,9 @@ void releaseBuddy(buddyAllocator* alloc, int node_idx)
         }
         else 
         {
-            printf("sono risalito fino alla radice, la libero\n");
+            printf("Sono risalito fino alla radice, la libero.\n");
             bitmap_setBit(&alloc->bit_map, parent_idx, 0);
-            print_bitmap(&alloc->bit_map);
+            // print_bitmap(&alloc->bit_map);
         }
     }
 }
@@ -203,7 +200,7 @@ void* buddyAllocator_free(buddyAllocator* alloc, void* mem)
     int* allocated_block = (int*)mem;
     int node_idx = *(allocated_block-1); // torno indietro e recupero la posizione
 
-    printf("libero blocco a indice %d\n", node_idx);
+    printf("Libero blocco a indice %d\n", node_idx);
 
     if(bitmap_getBit(&alloc->bit_map, node_idx)==0)
     {

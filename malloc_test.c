@@ -8,23 +8,24 @@ int main(int argc, char** argv)
 { 
     pseudoMalloc_init(9); 
 
-    printf("Allocazione gestibile dal buddy\n"); 
+    printf("--Allocazione gestibile dal buddy--\n"); 
     void* request1 = pseudo_malloc(250); 
-    if(request1!=NULL){printf("Riuscita\n");}
+    if(request1!=NULL){printf("--Allocazione riuscita--\n");}
 
-    memset(request1, 1, 250); 
+    memset(request1, 'A', 250); 
     printf("Valore scritto in prima pos: %c\n", ((char*)request1)[0]); 
     printf("Valore scritto in ultima pos: %c\n", ((char*)request1)[249]); 
 
     pseudo_free(request1, 250); 
 
-    printf("Allocazione da fare con mmap\n");
+    printf("--Allocazione da fare con mmap--\n");
     void* request2 = pseudo_malloc(2500); 
-    if(request2!=NULL){printf("Riuscita\n");}
+    if(request2!=NULL){printf("--Allocazione riuscita--\n");}
 
-    memset(request2, 2, 2500); 
+    memset(request2, 'B', 2500); 
     pseudo_free(request2, 2500); 
     
+    printf("--Tentativo allocazioni multiple con Buddy--\n");
     void* req3 = pseudo_malloc(500); 
     void* req4 = pseudo_malloc(500); 
     void* req5 = pseudo_malloc(500);

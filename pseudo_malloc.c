@@ -28,7 +28,7 @@ void* pseudo_malloc(int size)
         void* p = buddyAllocator_malloc(&alloc, size+4); 
         if(p==NULL)
         {
-            printf("fallimento allocazione con buddyAllocator");
+            printf("Fallimento allocazione con buddyAllocator.");
         }
         return p;
     }
@@ -38,7 +38,7 @@ void* pseudo_malloc(int size)
         void* p = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0); 
         if(p==MAP_FAILED)
         {
-            printf("fallimento allocazione con mmap");
+            printf("Fallimento allocazione con mmap.");
         }
         return p;    
     }
@@ -65,6 +65,6 @@ void pseudo_free(void* p, int size)
     else
     {
         int mnp = munmap(p, size);
-        if(mnp==-1) printf("fallimento deallocazione con munmap");
+        if(mnp==-1) printf("Fallimento deallocazione con munmap.\n");
     }
 }
